@@ -1,0 +1,71 @@
+
+version: '3.3'
+
+services:
+    nginx:
+        image: nginx:latest
+        container_name: nginx
+
+        ports:
+            - "8085:80"
+            - "443:443"
+        
+        volumes:
+            - ./nginx/core:/etc/nginx/conf.d
+            - ./nginx/www:/var/www/
+            - ./nginx/logs:/var/log/nginx/
+            - ./nginx/html:/usr/share/nginx/html/
+        
+        links:
+            - php
+
+
+    mysql:
+        image: mysql:latest
+        container_name: mysql
+
+        ports:
+            - "3306:3306"
+
+        environment:
+            - MYSQL_ROOT_PASSWORD=Qv892mAUfMyZ72xK
+            - MYSQL_DATABASE=laravel
+            - MYSQL_USER=laravel
+            - MYSQL_PASSWORD=9dS7xw4qksCeeeWW
+
+        volumes:
+            - ./mysql:/var/lib/mysql
+
+
+    redis:
+        image: redis:4-alpine
+        container_name: redis
+
+        volumes:
+            - ./redis:/data
+
+        ports:
+            - 6379:6379
+
+
+    php:
+        build: ./php
+        container_name: php-fpm
+
+        volumes:
+            - ./nginx/www:/var/www
+
+        links:
+            - mysql
+            - redis
+
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin
+
+        ports:
+            - 8090:80
+
+        links:
+            - mysql:db
